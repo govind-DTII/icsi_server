@@ -1,0 +1,35 @@
+import { User } from './user.entity';
+import { BleCharacteristic } from './ble-characteristic.entity';
+import { DeviceAssignment } from './device-assignment.entity';
+export declare class BleDevice {
+    id: string;
+    deviceId: string;
+    deviceName: string;
+    macAddress: string;
+    serviceUuid: string;
+    bleVersion: string;
+    tlsVersion: string;
+    firmwareVersion: string;
+    advertisementName: string;
+    isPaired: boolean;
+    isActive: boolean;
+    lastSeenAt: Date;
+    rssi: string;
+    batteryPct: number;
+    protocolVersion: string;
+    disconnectTimeoutSec: number;
+    heartbeatIntervalSec: number;
+    staleHeartbeatSec: number;
+    ackTimeoutSec: number;
+    maxAckRetries: number;
+    consentDecisionTimeoutSec: number;
+    consentExpiryMs: number;
+    hidInjectWindowSec: number;
+    rtcDriftThresholdSec: number;
+    maxPacketBytes: number;
+    owner: User;
+    characteristics: BleCharacteristic[];
+    assignments: DeviceAssignment[];
+    createdAt: Date;
+    updatedAt: Date;
+}

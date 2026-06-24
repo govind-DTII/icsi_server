@@ -1,0 +1,30 @@
+import { User } from './user.entity';
+export declare class ConsentRequest {
+    id: string;
+    txnRef: string;
+    title: string;
+    status: string;
+    scope: string;
+    blePayload: string;
+    blePacketRaw: string;
+    description: string;
+    fileUrl: string;
+    fileName: string;
+    fileSize: number;
+    attachmentName: string;
+    attachmentUrl: string;
+    attachmentHash: string;
+    delivery: string;
+    consentId: string;
+    abortedReason: string;
+    priority: string;
+    expiresAt: number;
+    decisionDeadlineMs: number;
+    sessionId: string;
+    approvedAt: Date;
+    rejectedAt: Date;
+    owner: User;
+    operator: User;
+    createdAt: Date;
+    updatedAt: Date;
+}
