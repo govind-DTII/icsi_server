@@ -47,6 +47,9 @@ export class AuditService {
         query.where('log.type = :type', { type: 'ble' });
       } else if (filter === 'auth') {
         query.where('log.type = :type', { type: 'login' });
+      } else if (filter === 'ser') {
+        // Subscriber Evidence Records — consent-create rows with a document name.
+        query.where('log.document_name IS NOT NULL');
       }
     }
 

@@ -72,4 +72,34 @@ export class CreateConsentRequestDto {
   @IsOptional()
   @IsString()
   attachment_hash?: string;
+
+  // Operator geo-tag at submit time (multipart sends numbers as strings).
+  @IsOptional()
+  latitude?: string | number;
+
+  @IsOptional()
+  longitude?: string | number;
+
+  @IsOptional()
+  location_accuracy?: string | number;
+
+  @IsOptional()
+  @IsString()
+  location_captured_at?: string;
+
+  @IsOptional()
+  @IsString()
+  street?: string;
+
+  @IsOptional()
+  @IsString()
+  city?: string;
+
+  @IsOptional()
+  @IsString()
+  state?: string;
+
+  @IsOptional()
+  @IsString()
+  postal_code?: string;
 }

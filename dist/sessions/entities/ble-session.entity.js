@@ -19,7 +19,7 @@ __decorate([
     __metadata("design:type", String)
 ], BleSession.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'session_id', length: 64, unique: true }),
+    (0, typeorm_1.Column)({ name: 'session_id', length: 64 }),
     __metadata("design:type", String)
 ], BleSession.prototype, "sessionId", void 0);
 __decorate([
@@ -82,6 +82,10 @@ exports.BleSession = BleSession = __decorate([
     (0, typeorm_1.Index)('idx_ble_sessions_device_id', ['deviceId']),
     (0, typeorm_1.Index)('idx_ble_sessions_operator_id', ['operatorId']),
     (0, typeorm_1.Index)('idx_ble_sessions_active', ['state'], { where: '"ended_at" IS NULL' }),
+    (0, typeorm_1.Index)('uq_ble_sessions_active_session_id', ['sessionId'], {
+        unique: true,
+        where: '"ended_at" IS NULL',
+    }),
     (0, typeorm_1.Entity)('ble_sessions')
 ], BleSession);
 //# sourceMappingURL=ble-session.entity.js.map

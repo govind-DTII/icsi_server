@@ -21,12 +21,15 @@ const consent_service_1 = require("../consent/consent.service");
 const sessions_service_1 = require("../sessions/sessions.service");
 const session_dto_1 = require("../sessions/dto/session.dto");
 const ble_events_service_1 = require("../ble-events/ble-events.service");
+const logger_service_1 = require("../logging/logger.service");
 let TamperService = class TamperService {
-    constructor(tamperRepo, consentService, sessionsService, bleEventsService) {
+    constructor(tamperRepo, consentService, sessionsService, bleEventsService, appLog, dataSource) {
         this.tamperRepo = tamperRepo;
         this.consentService = consentService;
         this.sessionsService = sessionsService;
         this.bleEventsService = bleEventsService;
+        this.appLog = appLog;
+        this.dataSource = dataSource;
     }
     async log(dto) {
         const event = this.tamperRepo.create({
@@ -37,17 +40,27 @@ let TamperService = class TamperService {
             reportedBy: dto.reportedBy,
             notes: dto.notes,
         });
-        await this.tamperRepo.save(event);
-        if (dto.consentId) {
-            await this.consentService.markAborted(dto.consentId, 'TAMPER_DETECTED');
-        }
-        await this.sessionsService.endAllActive(dto.deviceId, session_dto_1.EndReason.TAMPER);
+        await this.dataSource.transaction(async (manager) => {
+            await manager.save(event);
+            if (dto.consentId) {
+                await this.consentService.markAborted(dto.consentId, 'TAMPER_DETECTED', manager);
+            }
+            await this.sessionsService.endAllActive(dto.deviceId, session_dto_1.EndReason.TAMPER, manager);
+        });
         await this.bleEventsService.recordEvent({
             eventType: 'TAMPER_DETECTED',
             direction: 'FW_TO_APP',
             sessionId: dto.sessionId,
             consentId: dto.consentId,
             payloadSummary: { reportedBy: dto.reportedBy },
+        });
+        this.appLog.log(`tamper detected (${dto.reportedBy})`, {
+            service: 'tamper',
+            eventType: 'TAMPER_DETECTED',
+            deviceId: dto.deviceId,
+            sessionId: dto.sessionId,
+            consentId: dto.consentId,
+            errorCode: 'TAMPER',
         });
         return event;
     }
@@ -65,7 +78,15 @@ let TamperService = class TamperService {
         event.resolvedAt = new Date();
         if (notes !== undefined)
             event.notes = notes;
-        return this.tamperRepo.save(event);
+        const saved = await this.tamperRepo.save(event);
+        this.appLog.log(`tamper resolved (${id})`, {
+            service: 'tamper',
+            eventType: 'TAMPER_RESOLVED',
+            deviceId: saved.deviceId,
+            sessionId: saved.sessionId,
+            consentId: saved.consentId,
+        });
+        return saved;
     }
 };
 exports.TamperService = TamperService;
@@ -75,6 +96,8 @@ exports.TamperService = TamperService = __decorate([
     __metadata("design:paramtypes", [typeorm_2.Repository,
         consent_service_1.ConsentService,
         sessions_service_1.SessionsService,
-        ble_events_service_1.BleEventsService])
+        ble_events_service_1.BleEventsService,
+        logger_service_1.LoggerService,
+        typeorm_2.DataSource])
 ], TamperService);
 //# sourceMappingURL=tamper.service.js.map

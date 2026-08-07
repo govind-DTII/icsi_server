@@ -17,26 +17,38 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const rtc_sync_event_entity_1 = require("./entities/rtc-sync-event.entity");
+const logger_service_1 = require("../logging/logger.service");
 let RtcSyncService = class RtcSyncService {
-    constructor(rtcRepo) {
+    constructor(rtcRepo, appLog) {
         this.rtcRepo = rtcRepo;
+        this.appLog = appLog;
     }
     async logCorrection(dto) {
+        const driftMs = Math.abs(dto.newTimestampMs - dto.oldTimestampMs);
         const event = this.rtcRepo.create({
             deviceId: dto.deviceId,
             sessionId: dto.sessionId,
             operatorId: dto.operatorId,
             oldTimestampMs: dto.oldTimestampMs,
             newTimestampMs: dto.newTimestampMs,
-            driftMs: Math.abs(dto.newTimestampMs - dto.oldTimestampMs),
+            driftMs,
         });
-        return this.rtcRepo.save(event);
+        const saved = await this.rtcRepo.save(event);
+        this.appLog.log(`rtc corrected (drift ${driftMs}ms)`, {
+            service: 'rtc-sync',
+            eventType: 'RTC_CORRECTED',
+            deviceId: dto.deviceId,
+            sessionId: dto.sessionId,
+            actorId: dto.operatorId,
+        });
+        return saved;
     }
 };
 exports.RtcSyncService = RtcSyncService;
 exports.RtcSyncService = RtcSyncService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(rtc_sync_event_entity_1.RtcSyncEvent)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        logger_service_1.LoggerService])
 ], RtcSyncService);
 //# sourceMappingURL=rtc-sync.service.js.map

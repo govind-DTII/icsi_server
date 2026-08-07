@@ -48,6 +48,39 @@ export class ConsentRequest {
   attachmentUrl: string;
   @Column({ name: 'attachment_hash', nullable: true, length: 80 })
   attachmentHash: string;
+  // Operator geo-tag at the moment the consent request was submitted.
+  @Column({
+    name: 'operator_latitude',
+    type: 'double precision',
+    nullable: true,
+  })
+  operatorLatitude: number | null;
+  @Column({
+    name: 'operator_longitude',
+    type: 'double precision',
+    nullable: true,
+  })
+  operatorLongitude: number | null;
+  @Column({
+    name: 'operator_location_accuracy',
+    type: 'double precision',
+    nullable: true,
+  })
+  operatorLocationAccuracy: number | null;
+  @Column({
+    name: 'operator_location_captured_at',
+    type: 'timestamptz',
+    nullable: true,
+  })
+  operatorLocationCapturedAt: Date | null;
+  @Column({ name: 'operator_street', type: 'text', nullable: true })
+  operatorStreet: string | null;
+  @Column({ name: 'operator_city', length: 120, nullable: true })
+  operatorCity: string | null;
+  @Column({ name: 'operator_state', length: 120, nullable: true })
+  operatorState: string | null;
+  @Column({ name: 'operator_postal_code', length: 32, nullable: true })
+  operatorPostalCode: string | null;
   @Column({ default: 'FCM · BLE relay' }) delivery: string;
   @Column({ name: 'consent_id', nullable: true, unique: true })
   consentId: string;

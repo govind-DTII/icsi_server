@@ -11,13 +11,15 @@ export declare enum EndReason {
     TIMEOUT = "TIMEOUT",
     ERROR = "ERROR",
     DISCONNECTED = "DISCONNECTED",
-    ABORTED_BY_USER = "ABORTED_BY_USER"
+    ABORTED_BY_USER = "ABORTED_BY_USER",
+    OPERATOR_DECLINED = "OPERATOR_DECLINED"
 }
 export declare class CreateSessionDto {
     sessionId: string;
     deviceId: string;
     operatorId: string;
     ownerId: string;
+    txn?: string;
     fwVersion?: string;
     hwVersion?: string;
     macAddress?: string;

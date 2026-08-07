@@ -13,4 +13,12 @@ export declare class CreateConsentRequestDto {
     attachment_name?: string;
     attachment_url?: string;
     attachment_hash?: string;
+    latitude?: string | number;
+    longitude?: string | number;
+    location_accuracy?: string | number;
+    location_captured_at?: string;
+    street?: string;
+    city?: string;
+    state?: string;
+    postal_code?: string;
 }

@@ -22,9 +22,15 @@ let BleEventsController = class BleEventsController {
     constructor(bleEventsService) {
         this.bleEventsService = bleEventsService;
     }
-    async record(dto) {
-        const event = await this.bleEventsService.recordEvent(dto);
+    async record(dto, req) {
+        const event = await this.bleEventsService.recordEvent({
+            ...dto,
+            actorId: req.user?.userId,
+        });
         return { success: true, event };
+    }
+    list(sessionId, limit) {
+        return this.bleEventsService.listAudit(limit ? parseInt(limit, 10) : undefined, sessionId);
     }
 };
 exports.BleEventsController = BleEventsController;
@@ -32,10 +38,24 @@ __decorate([
     (0, common_1.Post)(),
     (0, swagger_1.ApiOperation)({ summary: 'Append a BLE audit event' }),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [ble_event_dto_1.BleEventDto]),
+    __metadata("design:paramtypes", [ble_event_dto_1.BleEventDto, Object]),
     __metadata("design:returntype", Promise)
 ], BleEventsController.prototype, "record", null);
+__decorate([
+    (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({
+        summary: 'List the BLE protocol audit trail (most recent first)',
+    }),
+    (0, swagger_1.ApiQuery)({ name: 'sessionId', required: false, type: String }),
+    (0, swagger_1.ApiQuery)({ name: 'limit', required: false, type: Number }),
+    __param(0, (0, common_1.Query)('sessionId')),
+    __param(1, (0, common_1.Query)('limit')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], BleEventsController.prototype, "list", null);
 exports.BleEventsController = BleEventsController = __decorate([
     (0, common_1.Controller)('ble-events'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

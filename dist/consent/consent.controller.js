@@ -25,10 +25,14 @@ let ConsentController = class ConsentController {
     getAll(req) {
         return this.consentService.findAll(req.user.userId, req.user.role);
     }
-    getById(id) {
-        return this.consentService.findById(id);
+    getById(id, req) {
+        return this.consentService.findById(id, req.user.userId);
     }
-    abort(id, body) {
+    hidResult(id, body, req) {
+        return this.consentService.notifyHidInjectUsed(id, body.status, body.used_at, req.user.userId);
+    }
+    async abort(id, body, req) {
+        await this.consentService.assertPartyById(id, req.user.userId);
         return this.consentService.markAborted(id, body.reason ?? 'OWNER_ABORTED');
     }
 };
@@ -45,10 +49,28 @@ __decorate([
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Get consent request details' }),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], ConsentController.prototype, "getById", null);
+__decorate([
+    (0, common_1.Post)(':id/hid-result'),
+    (0, roles_guard_1.Roles)('operator'),
+    (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Spec §6.2 — operator reports HID inject outcome',
+        description: 'Called when the operator app receives the firmware hid_pin_inject_ack. ' +
+            'On status=success the backend pings the owner that their PIN was used. ' +
+            'Non-success is ignored (no owner notification).',
+    }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object, Object]),
+    __metadata("design:returntype", void 0)
+], ConsentController.prototype, "hidResult", null);
 __decorate([
     (0, common_1.Post)(':id/abort'),
     (0, roles_guard_1.Roles)('owner', 'operator'),
@@ -59,9 +81,10 @@ __decorate([
     }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:paramtypes", [String, Object, Object]),
+    __metadata("design:returntype", Promise)
 ], ConsentController.prototype, "abort", null);
 exports.ConsentController = ConsentController = __decorate([
     (0, common_1.Controller)('consent'),

@@ -76,6 +76,54 @@ __decorate([
     __metadata("design:type", String)
 ], ConsentRequest.prototype, "attachmentHash", void 0);
 __decorate([
+    (0, typeorm_1.Column)({
+        name: 'operator_latitude',
+        type: 'double precision',
+        nullable: true,
+    }),
+    __metadata("design:type", Number)
+], ConsentRequest.prototype, "operatorLatitude", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        name: 'operator_longitude',
+        type: 'double precision',
+        nullable: true,
+    }),
+    __metadata("design:type", Number)
+], ConsentRequest.prototype, "operatorLongitude", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        name: 'operator_location_accuracy',
+        type: 'double precision',
+        nullable: true,
+    }),
+    __metadata("design:type", Number)
+], ConsentRequest.prototype, "operatorLocationAccuracy", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        name: 'operator_location_captured_at',
+        type: 'timestamptz',
+        nullable: true,
+    }),
+    __metadata("design:type", Date)
+], ConsentRequest.prototype, "operatorLocationCapturedAt", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'operator_street', type: 'text', nullable: true }),
+    __metadata("design:type", String)
+], ConsentRequest.prototype, "operatorStreet", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'operator_city', length: 120, nullable: true }),
+    __metadata("design:type", String)
+], ConsentRequest.prototype, "operatorCity", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'operator_state', length: 120, nullable: true }),
+    __metadata("design:type", String)
+], ConsentRequest.prototype, "operatorState", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'operator_postal_code', length: 32, nullable: true }),
+    __metadata("design:type", String)
+], ConsentRequest.prototype, "operatorPostalCode", void 0);
+__decorate([
     (0, typeorm_1.Column)({ default: 'FCM · BLE relay' }),
     __metadata("design:type", String)
 ], ConsentRequest.prototype, "delivery", void 0);
@@ -103,6 +151,10 @@ __decorate([
     (0, typeorm_1.Column)({ name: 'session_id', nullable: true }),
     __metadata("design:type", String)
 ], ConsentRequest.prototype, "sessionId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'device_id', nullable: true, length: 32 }),
+    __metadata("design:type", String)
+], ConsentRequest.prototype, "deviceId", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", Date)

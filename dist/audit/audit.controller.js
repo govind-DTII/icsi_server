@@ -32,7 +32,7 @@ __decorate([
     (0, swagger_1.ApiQuery)({
         name: 'filter',
         required: false,
-        enum: ['all', 'consent', 'ble', 'auth'],
+        enum: ['all', 'consent', 'ble', 'auth', 'ser'],
     }),
     (0, swagger_1.ApiQuery)({ name: 'limit', required: false, type: Number }),
     __param(0, (0, common_1.Request)()),

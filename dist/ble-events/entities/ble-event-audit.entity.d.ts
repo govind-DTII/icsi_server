@@ -7,5 +7,8 @@ export declare class BleEventAudit {
     direction: string;
     payloadSummary: Record<string, unknown>;
     errorCode: string;
+    retryCount: number;
+    deviceId: string;
+    actorId: string;
     recordedAt: Date;
 }

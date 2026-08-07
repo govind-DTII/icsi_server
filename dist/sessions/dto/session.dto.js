@@ -27,6 +27,7 @@ var EndReason;
     EndReason["ERROR"] = "ERROR";
     EndReason["DISCONNECTED"] = "DISCONNECTED";
     EndReason["ABORTED_BY_USER"] = "ABORTED_BY_USER";
+    EndReason["OPERATOR_DECLINED"] = "OPERATOR_DECLINED";
 })(EndReason || (exports.EndReason = EndReason = {}));
 class CreateSessionDto {
 }
@@ -51,6 +52,11 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateSessionDto.prototype, "ownerId", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateSessionDto.prototype, "txn", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),

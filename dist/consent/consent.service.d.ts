@@ -1,30 +1,43 @@
 import { OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { ConsentRequest } from '../entities/consent-request.entity';
 import { User } from '../entities/user.entity';
 import { BleDevice } from '../entities/ble-device.entity';
+import { DeviceAssignment } from '../entities/device-assignment.entity';
 import { AuditService } from '../audit/audit.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { BleEventsService } from '../ble-events/ble-events.service';
+import { SessionsService } from '../sessions/sessions.service';
+import { LoggerService } from '../logging/logger.service';
 export declare class ConsentService implements OnModuleInit, OnModuleDestroy {
     private consentRepo;
     private userRepo;
     private bleDeviceRepo;
+    private assignRepo;
     private auditService;
     private notificationsService;
     private bleEventsService;
+    private sessionsService;
     private jwtService;
+    private readonly appLog;
     private readonly logger;
     private _expiryInterval;
-    constructor(consentRepo: Repository<ConsentRequest>, userRepo: Repository<User>, bleDeviceRepo: Repository<BleDevice>, auditService: AuditService, notificationsService: NotificationsService, bleEventsService: BleEventsService, jwtService: JwtService);
+    constructor(consentRepo: Repository<ConsentRequest>, userRepo: Repository<User>, bleDeviceRepo: Repository<BleDevice>, assignRepo: Repository<DeviceAssignment>, auditService: AuditService, notificationsService: NotificationsService, bleEventsService: BleEventsService, sessionsService: SessionsService, jwtService: JwtService, appLog: LoggerService);
     onModuleInit(): void;
     onModuleDestroy(): void;
+    private publicConsentId;
+    private safeAudit;
+    private safeRecordEvent;
+    private logFcmDispatch;
+    private assertSessionConsistent;
+    private recordConsentTerminal;
     expireStalePending(): Promise<number>;
     private enforceDecisionWindow;
     private stripUser;
+    private assertCallerIsParty;
     findAll(userId: string, role: string): Promise<any[]>;
-    getConsentResponse(consentIdParam: string): Promise<{
+    getConsentResponse(consentIdParam: string, callerId?: string): Promise<{
         consent_id: string;
         txn: string;
         decision: string | null;
@@ -33,8 +46,10 @@ export declare class ConsentService implements OnModuleInit, OnModuleDestroy {
         reason: string | null;
         decided_at: number | null;
     }>;
-    findById(idOrConsentId: string): Promise<any>;
+    findById(idOrConsentId: string, callerId?: string): Promise<any>;
+    assertPartyById(idOrConsentId: string, callerId: string): Promise<void>;
     private decisionTiming;
+    private createdAtEpoch;
     private decisionDeadlineEpoch;
     approve(consentId: string, actorId: string): Promise<ConsentRequest>;
     private validateConsentParties;
@@ -54,6 +69,14 @@ export declare class ConsentService implements OnModuleInit, OnModuleDestroy {
         attachment_name?: string;
         attachment_url?: string;
         attachment_hash?: string;
+        latitude?: number | null;
+        longitude?: number | null;
+        location_accuracy?: number | null;
+        location_captured_at?: string | null;
+        street?: string | null;
+        city?: string | null;
+        state?: string | null;
+        postal_code?: string | null;
     }, file?: Express.Multer.File): Promise<{
         status: string;
         message: string;
@@ -72,6 +95,9 @@ export declare class ConsentService implements OnModuleInit, OnModuleDestroy {
         decision: string;
         decided_at: number;
     }>;
-    markAborted(idOrConsentId: string, reason: string): Promise<void>;
+    notifyHidInjectUsed(idOrConsentId: string, status: string, usedAtMs?: number, callerId?: string): Promise<{
+        status: string;
+    }>;
+    markAborted(idOrConsentId: string, reason: string, manager?: EntityManager): Promise<void>;
     reject(consentId: string, actorId: string, reason?: string): Promise<ConsentRequest>;
 }

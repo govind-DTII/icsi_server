@@ -28,12 +28,16 @@ import { AllExceptionsFilter } from './logging/all-exceptions.filter';
       useFactory: (config: ConfigService) => ({
         type: 'postgres',
         host: config.get('DB_HOST'),
-        port: parseInt(config.get('DB_PORT') ?? '5433'),
+        port: parseInt(config.get('DB_PORT') ?? '5432'),
         username: config.get('DB_USERNAME'),
         password: config.get('DB_PASSWORD'),
         database: config.get('DB_NAME'),
         autoLoadEntities: true,
-        synchronize: config.get('NODE_ENV') !== 'production',
+        // Never auto-alter schema in production — apply SQL from
+        // CLOUD_DEPLOY_SER.md instead. Local/dev may synchronize.
+        synchronize:
+          (config.get('NODE_ENV') ?? 'development') !== 'production' &&
+          config.get('DB_SYNCHRONIZE') !== 'false',
         logging: config.get('NODE_ENV') === 'development',
       }),
       inject: [ConfigService],

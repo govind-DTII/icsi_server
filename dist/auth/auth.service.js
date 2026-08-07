@@ -18,17 +18,21 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const jwt_1 = require("@nestjs/jwt");
 const config_1 = require("@nestjs/config");
+const crypto_1 = require("crypto");
 const bcrypt = require("bcrypt");
 const user_entity_1 = require("../entities/user.entity");
 const audit_service_1 = require("../audit/audit.service");
+const logger_service_1 = require("../logging/logger.service");
 let AuthService = class AuthService {
-    constructor(userRepo, jwtService, config, auditService) {
+    constructor(userRepo, jwtService, config, auditService, appLog) {
         this.userRepo = userRepo;
         this.jwtService = jwtService;
         this.config = config;
         this.auditService = auditService;
+        this.appLog = appLog;
     }
     async login(dto) {
+        const requestId = (0, crypto_1.randomUUID)();
         let user;
         const isDemoMode = this.config.get('DEMO_MODE') === 'true';
         if (isDemoMode) {
@@ -53,7 +57,14 @@ let AuthService = class AuthService {
             type: 'login',
             actorId: user.id,
             actorRole: user.role,
+            actorName: user.name,
             detail: `Auth API · ${isDemoMode ? 'demo one-tap' : 'email+password'}`,
+        });
+        this.appLog.log('user login', {
+            requestId,
+            service: 'auth',
+            eventType: 'LOGIN',
+            actorId: user.id,
         });
         const payload = {
             sub: user.id,
@@ -81,6 +92,7 @@ exports.AuthService = AuthService = __decorate([
     __metadata("design:paramtypes", [typeorm_2.Repository,
         jwt_1.JwtService,
         config_1.ConfigService,
-        audit_service_1.AuditService])
+        audit_service_1.AuditService,
+        logger_service_1.LoggerService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

@@ -1,6 +1,7 @@
 import './polyfill';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
@@ -9,6 +10,13 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { LoggerService } from './logging/logger.service';
 
 async function bootstrap() {
+  // Ensure upload directory exists before Multer writes — missing folder
+  // otherwise fails consent creates with opaque 500s on fresh cloud hosts.
+  const uploadsDir = join(process.cwd(), 'uploads');
+  if (!existsSync(uploadsDir)) {
+    mkdirSync(uploadsDir, { recursive: true });
+  }
+
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // Resolve the structured logger so startup + process-level errors land in the
@@ -18,6 +26,7 @@ async function bootstrap() {
   // Last-resort safety net: async errors thrown outside the Nest HTTP pipeline
   // (stray rejections, timers, event handlers) would otherwise vanish or crash
   // the process silently. Log them structurally so production can triage them.
+  // Do NOT process.exit — keep the API process up for cloud health checks.
   process.on('unhandledRejection', (reason: unknown) => {
     const err = reason as Error;
     appLog.error(
@@ -37,7 +46,7 @@ async function bootstrap() {
   app.enableCors({ origin: '*' }); // restrict in production
 
   // Serve uploaded files as static
-  app.useStaticAssets(join(process.cwd(), 'uploads'), {
+  app.useStaticAssets(uploadsDir, {
     prefix: '/uploads',
   });
 
@@ -64,7 +73,6 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, document);
 
   const port = process.env.PORT ?? 3000;
-  //  await app.listen(port);
   await app.listen(port, '0.0.0.0');
 
   appLog.log(`API listening on port ${port}`, {
@@ -76,4 +84,9 @@ async function bootstrap() {
   console.log(`📚 Swagger docs: http://localhost:${port}/api/docs`);
   console.log(`📱 From phone use: http://192.168.x.x:${port}/api/v1`);
 }
-bootstrap();
+
+bootstrap().catch((err: Error) => {
+  // Startup failures must be visible; exit so the process manager can restart.
+  console.error('FATAL: Nest bootstrap failed', err?.stack ?? err);
+  process.exit(1);
+});

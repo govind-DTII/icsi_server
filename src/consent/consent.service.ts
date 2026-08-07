@@ -766,6 +766,14 @@ export class ConsentService implements OnModuleInit, OnModuleDestroy {
       attachment_name?: string;
       attachment_url?: string;
       attachment_hash?: string;
+      latitude?: number | null;
+      longitude?: number | null;
+      location_accuracy?: number | null;
+      location_captured_at?: string | null;
+      street?: string | null;
+      city?: string | null;
+      state?: string | null;
+      postal_code?: string | null;
     },
     file?: Express.Multer.File,
   ): Promise<{
@@ -837,6 +845,46 @@ export class ConsentService implements OnModuleInit, OnModuleDestroy {
     const attachmentUrl = body.attachment_url ?? fileUrl;
     const attachmentHash = body.attachment_hash ?? serverHash;
 
+    const operatorLatitude =
+      typeof body.latitude === 'number' && Number.isFinite(body.latitude)
+        ? body.latitude
+        : null;
+    const operatorLongitude =
+      typeof body.longitude === 'number' && Number.isFinite(body.longitude)
+        ? body.longitude
+        : null;
+    const operatorLocationAccuracy =
+      typeof body.location_accuracy === 'number' &&
+      Number.isFinite(body.location_accuracy)
+        ? body.location_accuracy
+        : null;
+    let operatorLocationCapturedAt: Date | null = null;
+    if (body.location_captured_at) {
+      const parsed = new Date(body.location_captured_at);
+      if (!Number.isNaN(parsed.getTime())) {
+        operatorLocationCapturedAt = parsed;
+      }
+    } else if (operatorLatitude != null && operatorLongitude != null) {
+      operatorLocationCapturedAt = new Date();
+    }
+
+    const operatorStreet =
+      typeof body.street === 'string' && body.street.trim()
+        ? body.street.trim()
+        : null;
+    const operatorCity =
+      typeof body.city === 'string' && body.city.trim()
+        ? body.city.trim()
+        : null;
+    const operatorState =
+      typeof body.state === 'string' && body.state.trim()
+        ? body.state.trim()
+        : null;
+    const operatorPostalCode =
+      typeof body.postal_code === 'string' && body.postal_code.trim()
+        ? body.postal_code.trim()
+        : null;
+
     // Decision-window lengths are DB-configured per device; load the row so the
     // priority-driven deadline uses the device's values (falls back to defaults
     // if the device_id is unknown).
@@ -866,6 +914,16 @@ export class ConsentService implements OnModuleInit, OnModuleDestroy {
       attachment_name: attachmentName ?? null,
       attachment_url: attachmentUrl ?? null,
       attachment_hash: attachmentHash ?? null,
+      operator_latitude: operatorLatitude,
+      operator_longitude: operatorLongitude,
+      operator_location_accuracy: operatorLocationAccuracy,
+      operator_location_captured_at: operatorLocationCapturedAt
+        ? operatorLocationCapturedAt.toISOString()
+        : null,
+      operator_street: operatorStreet,
+      operator_city: operatorCity,
+      operator_state: operatorState,
+      operator_postal_code: operatorPostalCode,
     });
 
     const consent = this.consentRepo.create({
@@ -881,6 +939,14 @@ export class ConsentService implements OnModuleInit, OnModuleDestroy {
       attachmentName,
       attachmentUrl,
       attachmentHash,
+      operatorLatitude,
+      operatorLongitude,
+      operatorLocationAccuracy,
+      operatorLocationCapturedAt,
+      operatorStreet,
+      operatorCity,
+      operatorState,
+      operatorPostalCode,
       // Full §3.1 app-generated request snapshot (was: blePayload misused to
       // hold the bare txn, which only duplicated txnRef).
       blePacketRaw,
@@ -906,10 +972,24 @@ export class ConsentService implements OnModuleInit, OnModuleDestroy {
       type: 'system',
       actorId: operatorId,
       actorRole: 'operator',
+      actorName: operator?.name,
       detail:
         `Title: ${body.title} · File: ${attachmentName ?? 'none'}` +
-        `${attachmentHash ? ` · ${attachmentHash}` : ''}`,
+        `${attachmentHash ? ` · ${attachmentHash}` : ''}` +
+        (operatorLatitude != null && operatorLongitude != null
+          ? ` · Geo: ${operatorLatitude},${operatorLongitude}`
+          : ''),
       consentRequest: consent,
+      documentName: attachmentName ?? fileName ?? body.title,
+      attachmentHash: attachmentHash ?? null,
+      fileUrl: fileUrl ?? attachmentUrl ?? null,
+      latitude: operatorLatitude,
+      longitude: operatorLongitude,
+      locationAccuracy: operatorLocationAccuracy,
+      street: operatorStreet,
+      city: operatorCity,
+      state: operatorState,
+      postalCode: operatorPostalCode,
     });
 
     await this.safeRecordEvent({

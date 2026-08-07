@@ -13,10 +13,12 @@ const typeorm_1 = require("@nestjs/typeorm");
 const consent_request_entity_1 = require("../entities/consent-request.entity");
 const user_entity_1 = require("../entities/user.entity");
 const ble_device_entity_1 = require("../entities/ble-device.entity");
+const device_assignment_entity_1 = require("../entities/device-assignment.entity");
 const audit_module_1 = require("../audit/audit.module");
 const notifications_module_1 = require("../notifications/notifications.module");
 const auth_module_1 = require("../auth/auth.module");
 const ble_events_module_1 = require("../ble-events/ble-events.module");
+const sessions_module_1 = require("../sessions/sessions.module");
 const consent_service_1 = require("./consent.service");
 const consent_controller_1 = require("./consent.controller");
 const consent_request_controller_1 = require("./consent-request.controller");
@@ -28,11 +30,17 @@ exports.ConsentModule = ConsentModule = __decorate([
     (0, common_1.Module)({
         imports: [
             platform_express_1.MulterModule.register({ dest: './uploads' }),
-            typeorm_1.TypeOrmModule.forFeature([consent_request_entity_1.ConsentRequest, user_entity_1.User, ble_device_entity_1.BleDevice]),
+            typeorm_1.TypeOrmModule.forFeature([
+                consent_request_entity_1.ConsentRequest,
+                user_entity_1.User,
+                ble_device_entity_1.BleDevice,
+                device_assignment_entity_1.DeviceAssignment,
+            ]),
             audit_module_1.AuditModule,
             notifications_module_1.NotificationsModule,
             auth_module_1.AuthModule,
             ble_events_module_1.BleEventsModule,
+            sessions_module_1.SessionsModule,
         ],
         providers: [consent_service_1.ConsentService],
         controllers: [

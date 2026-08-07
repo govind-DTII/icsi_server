@@ -12,4 +12,6 @@ export declare class BleEventDto {
     direction?: EventDirection;
     payloadSummary?: Record<string, unknown>;
     errorCode?: string;
+    retryCount?: number;
+    deviceId?: string;
 }

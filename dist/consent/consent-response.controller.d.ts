@@ -12,7 +12,7 @@ export declare class ConsentResponseController {
         decision: string;
         decided_at: number;
     }>;
-    getResponse(consentId: string): Promise<{
+    getResponse(consentId: string, req: any): Promise<{
         consent_id: string;
         txn: string;
         decision: string | null;

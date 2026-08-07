@@ -98,13 +98,13 @@ __decorate([
     __metadata("design:type", Number)
 ], BleDevice.prototype, "maxAckRetries", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ default: 120 }),
+    __metadata("design:type", Number)
+], BleDevice.prototype, "consentDecisionNormalSec", void 0);
+__decorate([
     (0, typeorm_1.Column)({ default: 60 }),
     __metadata("design:type", Number)
-], BleDevice.prototype, "consentDecisionTimeoutSec", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ default: 300000 }),
-    __metadata("design:type", Number)
-], BleDevice.prototype, "consentExpiryMs", void 0);
+], BleDevice.prototype, "consentDecisionHighSec", void 0);
 __decorate([
     (0, typeorm_1.Column)({ default: 60 }),
     __metadata("design:type", Number)

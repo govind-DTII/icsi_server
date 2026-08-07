@@ -30,7 +30,24 @@ let ConsentRequestController = class ConsentRequestController {
         const expiresAt = typeof body.expires_at === 'string'
             ? parseInt(body.expires_at, 10)
             : body.expires_at;
-        return this.consentService.createConsentRequest(req.user.userId, { ...body, expires_at: expiresAt }, file);
+        const toNum = (v) => {
+            if (v === undefined || v === null || v === '')
+                return null;
+            const n = typeof v === 'number' ? v : parseFloat(v);
+            return Number.isFinite(n) ? n : null;
+        };
+        return this.consentService.createConsentRequest(req.user.userId, {
+            ...body,
+            expires_at: expiresAt,
+            latitude: toNum(body.latitude),
+            longitude: toNum(body.longitude),
+            location_accuracy: toNum(body.location_accuracy),
+            location_captured_at: body.location_captured_at ?? null,
+            street: body.street ?? null,
+            city: body.city ?? null,
+            state: body.state ?? null,
+            postal_code: body.postal_code ?? null,
+        }, file);
     }
 };
 exports.ConsentRequestController = ConsentRequestController;

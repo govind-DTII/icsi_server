@@ -20,7 +20,7 @@ export class AuditController {
   @ApiQuery({
     name: 'filter',
     required: false,
-    enum: ['all', 'consent', 'ble', 'auth'],
+    enum: ['all', 'consent', 'ble', 'auth', 'ser'],
   })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   getAll(

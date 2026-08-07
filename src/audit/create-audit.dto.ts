@@ -15,4 +15,15 @@ export class CreateAuditDto {
   txn?: string;
   sessionId?: string;
   deviceId?: string;
+  // SER evidence fields (consent-create rows).
+  documentName?: string | null;
+  attachmentHash?: string | null;
+  fileUrl?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  locationAccuracy?: number | null;
+  street?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postalCode?: string | null;
 }

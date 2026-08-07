@@ -14,6 +14,14 @@ export declare class ConsentRequest {
     attachmentName: string;
     attachmentUrl: string;
     attachmentHash: string;
+    operatorLatitude: number | null;
+    operatorLongitude: number | null;
+    operatorLocationAccuracy: number | null;
+    operatorLocationCapturedAt: Date | null;
+    operatorStreet: string | null;
+    operatorCity: string | null;
+    operatorState: string | null;
+    operatorPostalCode: string | null;
     delivery: string;
     consentId: string;
     abortedReason: string;
@@ -21,6 +29,7 @@ export declare class ConsentRequest {
     expiresAt: number;
     decisionDeadlineMs: number;
     sessionId: string;
+    deviceId: string;
     approvedAt: Date;
     rejectedAt: Date;
     owner: User;

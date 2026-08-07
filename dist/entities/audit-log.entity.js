@@ -44,11 +44,77 @@ __decorate([
     __metadata("design:type", String)
 ], AuditLog.prototype, "actorRole", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], AuditLog.prototype, "actorName", void 0);
+__decorate([
+    (0, typeorm_1.Index)('idx_audit_logs_consent_id'),
+    (0, typeorm_1.Column)({ name: 'consent_id', length: 64, nullable: true }),
+    __metadata("design:type", String)
+], AuditLog.prototype, "consentId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ length: 32, nullable: true }),
+    __metadata("design:type", String)
+], AuditLog.prototype, "txn", void 0);
+__decorate([
+    (0, typeorm_1.Index)('idx_audit_logs_session_id'),
+    (0, typeorm_1.Column)({ name: 'session_id', length: 64, nullable: true }),
+    __metadata("design:type", String)
+], AuditLog.prototype, "sessionId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'device_id', length: 32, nullable: true }),
+    __metadata("design:type", String)
+], AuditLog.prototype, "deviceId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'document_name', length: 255, nullable: true }),
+    __metadata("design:type", String)
+], AuditLog.prototype, "documentName", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'attachment_hash', length: 80, nullable: true }),
+    __metadata("design:type", String)
+], AuditLog.prototype, "attachmentHash", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'file_url', type: 'text', nullable: true }),
+    __metadata("design:type", String)
+], AuditLog.prototype, "fileUrl", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'double precision', nullable: true }),
+    __metadata("design:type", Number)
+], AuditLog.prototype, "latitude", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'double precision', nullable: true }),
+    __metadata("design:type", Number)
+], AuditLog.prototype, "longitude", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        name: 'location_accuracy',
+        type: 'double precision',
+        nullable: true,
+    }),
+    __metadata("design:type", Number)
+], AuditLog.prototype, "locationAccuracy", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'street', type: 'text', nullable: true }),
+    __metadata("design:type", String)
+], AuditLog.prototype, "street", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'city', length: 120, nullable: true }),
+    __metadata("design:type", String)
+], AuditLog.prototype, "city", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'state', length: 120, nullable: true }),
+    __metadata("design:type", String)
+], AuditLog.prototype, "state", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'postal_code', length: 32, nullable: true }),
+    __metadata("design:type", String)
+], AuditLog.prototype, "postalCode", void 0);
+__decorate([
     (0, typeorm_1.ManyToOne)(() => consent_request_entity_1.ConsentRequest, { nullable: true }),
     __metadata("design:type", consent_request_entity_1.ConsentRequest)
 ], AuditLog.prototype, "consentRequest", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)(),
+    (0, typeorm_1.CreateDateColumn)({ type: 'timestamptz' }),
     __metadata("design:type", Date)
 ], AuditLog.prototype, "createdAt", void 0);
 exports.AuditLog = AuditLog = __decorate([

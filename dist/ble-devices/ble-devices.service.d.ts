@@ -25,8 +25,8 @@ export declare class BleDevicesService {
             staleHeartbeatSec: number;
             ackSec: number;
             maxRetries: number;
-            consentDecisionSec: number;
-            consentExpiryMs: number;
+            consentDecisionNormalSec: number;
+            consentDecisionHighSec: number;
             hidInjectWindowSec: number;
             rtcDriftThresholdSec: number;
             maxPacketBytes: number;

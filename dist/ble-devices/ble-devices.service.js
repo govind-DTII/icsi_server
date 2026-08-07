@@ -84,8 +84,8 @@ let BleDevicesService = class BleDevicesService {
                 staleHeartbeatSec: d.staleHeartbeatSec,
                 ackSec: d.ackTimeoutSec,
                 maxRetries: d.maxAckRetries,
-                consentDecisionSec: d.consentDecisionTimeoutSec,
-                consentExpiryMs: d.consentExpiryMs,
+                consentDecisionNormalSec: d.consentDecisionNormalSec,
+                consentDecisionHighSec: d.consentDecisionHighSec,
                 hidInjectWindowSec: d.hidInjectWindowSec,
                 rtcDriftThresholdSec: d.rtcDriftThresholdSec,
                 maxPacketBytes: d.maxPacketBytes,
@@ -127,6 +127,7 @@ let BleDevicesService = class BleDevicesService {
         });
         if (existing)
             return existing;
+        await this.assignRepo.update({ operator: { id: operatorId }, isActive: true }, { isActive: false });
         const assignment = this.assignRepo.create({
             bleDevice: device,
             operator,

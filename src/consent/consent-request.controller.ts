@@ -48,10 +48,12 @@ export class ConsentRequestController {
       fileFilter: (req, file, cb) => {
         const allowed = ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx'];
         const ext = extname(file.originalname).toLowerCase();
+        // Never throw here — a thrown Error from multer can take down the
+        // request pipeline hard. Reject the file cleanly instead.
         if (allowed.includes(ext)) {
           cb(null, true);
         } else {
-          cb(new Error('File type not allowed'), false);
+          cb(null, false);
         }
       },
     }),
@@ -68,9 +70,28 @@ export class ConsentRequestController {
         ? parseInt(body.expires_at, 10)
         : body.expires_at;
 
+    // Multipart numbers arrive as strings — coerce safely; bad values become null
+    // so geo fields never 500 the create path.
+    const toNum = (v: string | number | undefined | null): number | null => {
+      if (v === undefined || v === null || v === '') return null;
+      const n = typeof v === 'number' ? v : parseFloat(String(v));
+      return Number.isFinite(n) ? n : null;
+    };
+
     return this.consentService.createConsentRequest(
       req.user.userId,
-      { ...body, expires_at: expiresAt },
+      {
+        ...body,
+        expires_at: expiresAt,
+        latitude: toNum(body.latitude),
+        longitude: toNum(body.longitude),
+        location_accuracy: toNum(body.location_accuracy),
+        location_captured_at: body.location_captured_at ?? null,
+        street: body.street ?? null,
+        city: body.city ?? null,
+        state: body.state ?? null,
+        postal_code: body.postal_code ?? null,
+      },
       file,
     );
   }

@@ -22,7 +22,14 @@ let AuditService = class AuditService {
         this.auditRepo = auditRepo;
     }
     async log(dto) {
-        const entry = this.auditRepo.create(dto);
+        const c = dto.consentRequest;
+        const entry = this.auditRepo.create({
+            ...dto,
+            consentId: dto.consentId ?? c?.consentId ?? c?.id,
+            txn: dto.txn ?? c?.txnRef,
+            sessionId: dto.sessionId ?? c?.sessionId,
+            deviceId: dto.deviceId ?? c?.deviceId,
+        });
         return this.auditRepo.save(entry);
     }
     async findAll(userId, role, filter, limit = 50) {
@@ -42,6 +49,9 @@ let AuditService = class AuditService {
             }
             else if (filter === 'auth') {
                 query.where('log.type = :type', { type: 'login' });
+            }
+            else if (filter === 'ser') {
+                query.where('log.document_name IS NOT NULL');
             }
         }
         return query.getMany();

@@ -1,4 +1,6 @@
 import '../polyfill';
+import { config as loadEnv } from 'dotenv';
+import { resolve } from 'path';
 import { DataSource } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { Device } from '../entities/device.entity';
@@ -11,10 +13,14 @@ import { BleSession } from '../sessions/entities/ble-session.entity';
 import { BleEventAudit } from '../ble-events/entities/ble-event-audit.entity';
 import * as bcrypt from 'bcrypt';
 
+// Nest ConfigModule loads .env for `start:dev`; the standalone seed script must
+// load it explicitly or it falls back to password "postgres" and fails auth.
+loadEnv({ path: resolve(__dirname, '../../.env') });
+
 const AppDataSource = new DataSource({
   type: 'postgres',
   host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5433'),
+  port: parseInt(process.env.DB_PORT || '5432'),
   username: process.env.DB_USERNAME || 'postgres',
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_NAME || 'ascent.en',
@@ -80,6 +86,8 @@ async function seed() {
     role: 'owner',
     deviceId: 'DTI001',
     passwordHash: await bcrypt.hash('owner123', 10),
+    // Original Phase-1 demo PIN (pre-local-test change). Cloud/prod must keep
+    // existing owner.pin values — do NOT reseed production.
     pin: '11111111',
   });
   const operator1 = userRepo.create({
@@ -95,7 +103,7 @@ async function seed() {
   const owner2 = userRepo.create({
     id: 'USR-003',
     email: 'owner2@dtii.in',
-    name: 'Priya Nair',
+    name: 'Tejaswee Jadhav',
     role: 'owner',
     deviceId: 'DTI002',
     passwordHash: await bcrypt.hash('owner123', 10),

@@ -30,13 +30,16 @@ let BleEventsService = class BleEventsService {
             direction: dto.direction,
             payloadSummary: dto.payloadSummary,
             errorCode: dto.errorCode,
+            retryCount: dto.retryCount,
+            deviceId: dto.deviceId,
+            actorId: dto.actorId,
         });
         return this.eventRepo.save(event);
     }
     async listBySession(sessionId, limit = 100) {
         return this.eventRepo.find({
             where: { sessionId },
-            order: { recordedAt: 'ASC' },
+            order: { id: 'ASC' },
             take: limit,
         });
     }
@@ -49,6 +52,46 @@ let BleEventsService = class BleEventsService {
             order: { recordedAt: 'DESC' },
             take: limit,
         });
+    }
+    async listAudit(limit = 50, sessionId) {
+        const events = await this.eventRepo.find({
+            where: sessionId ? { sessionId } : {},
+            order: { id: 'DESC' },
+            take: limit,
+        });
+        return events.map((e) => this.toAuditView(e));
+    }
+    toAuditView(e) {
+        return {
+            id: `ble-${e.id}`,
+            action: this.humanizeEventType(e.eventType),
+            detail: this.summarize(e),
+            type: 'ble',
+            actorId: e.actorId ?? 'SYSTEM',
+            actorRole: 'device',
+            createdAt: e.recordedAt.toISOString(),
+        };
+    }
+    humanizeEventType(eventType) {
+        return eventType
+            .toLowerCase()
+            .split('_')
+            .map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w))
+            .join(' ');
+    }
+    summarize(e) {
+        const parts = [];
+        if (e.direction)
+            parts.push(e.direction);
+        if (e.errorCode)
+            parts.push(`err ${e.errorCode}`);
+        if (e.retryCount != null)
+            parts.push(`retries ${e.retryCount}`);
+        if (e.deviceId)
+            parts.push(e.deviceId);
+        if (e.txn)
+            parts.push(`txn ${e.txn}`);
+        return parts.join(' · ');
     }
 };
 exports.BleEventsService = BleEventsService;

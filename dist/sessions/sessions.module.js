@@ -13,12 +13,16 @@ const ble_session_entity_1 = require("./entities/ble-session.entity");
 const device_identity_snapshot_entity_1 = require("./entities/device-identity-snapshot.entity");
 const sessions_service_1 = require("./sessions.service");
 const sessions_controller_1 = require("./sessions.controller");
+const ble_events_module_1 = require("../ble-events/ble-events.module");
 let SessionsModule = class SessionsModule {
 };
 exports.SessionsModule = SessionsModule;
 exports.SessionsModule = SessionsModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([ble_session_entity_1.BleSession, device_identity_snapshot_entity_1.DeviceIdentitySnapshot])],
+        imports: [
+            typeorm_1.TypeOrmModule.forFeature([ble_session_entity_1.BleSession, device_identity_snapshot_entity_1.DeviceIdentitySnapshot]),
+            ble_events_module_1.BleEventsModule,
+        ],
         providers: [sessions_service_1.SessionsService],
         controllers: [sessions_controller_1.SessionsController],
         exports: [sessions_service_1.SessionsService],

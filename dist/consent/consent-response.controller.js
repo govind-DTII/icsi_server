@@ -25,8 +25,8 @@ let ConsentResponseController = class ConsentResponseController {
     submit(body, req) {
         return this.consentService.submitConsentResponse(req.user.userId, body);
     }
-    getResponse(consentId) {
-        return this.consentService.getConsentResponse(consentId);
+    getResponse(consentId, req) {
+        return this.consentService.getConsentResponse(consentId, req.user.userId);
     }
 };
 exports.ConsentResponseController = ConsentResponseController;
@@ -49,8 +49,9 @@ __decorate([
         summary: 'Fetch the owner decision (jwt_token + payload) for a consent',
     }),
     __param(0, (0, common_1.Param)('consentId')),
+    __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], ConsentResponseController.prototype, "getResponse", null);
 exports.ConsentResponseController = ConsentResponseController = __decorate([

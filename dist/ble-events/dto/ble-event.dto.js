@@ -56,4 +56,14 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], BleEventDto.prototype, "errorCode", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsInt)(),
+    __metadata("design:type", Number)
+], BleEventDto.prototype, "retryCount", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], BleEventDto.prototype, "deviceId", void 0);
 //# sourceMappingURL=ble-event.dto.js.map

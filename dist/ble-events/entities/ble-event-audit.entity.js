@@ -43,9 +43,21 @@ __decorate([
     __metadata("design:type", Object)
 ], BleEventAudit.prototype, "payloadSummary", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'error_code', length: 8, nullable: true }),
+    (0, typeorm_1.Column)({ name: 'error_code', length: 32, nullable: true }),
     __metadata("design:type", String)
 ], BleEventAudit.prototype, "errorCode", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'retry_count', type: 'int', nullable: true }),
+    __metadata("design:type", Number)
+], BleEventAudit.prototype, "retryCount", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'device_id', length: 32, nullable: true }),
+    __metadata("design:type", String)
+], BleEventAudit.prototype, "deviceId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'actor_id', length: 36, nullable: true }),
+    __metadata("design:type", String)
+], BleEventAudit.prototype, "actorId", void 0);
 __decorate([
     (0, typeorm_1.Column)({ name: 'recorded_at', type: 'timestamptz', default: () => 'NOW()' }),
     __metadata("design:type", Date)
@@ -53,6 +65,7 @@ __decorate([
 exports.BleEventAudit = BleEventAudit = __decorate([
     (0, typeorm_1.Index)('idx_ble_event_audit_session_id', ['sessionId']),
     (0, typeorm_1.Index)('idx_ble_event_audit_consent_id', ['consentId']),
+    (0, typeorm_1.Index)('idx_ble_event_audit_device_id', ['deviceId']),
     (0, typeorm_1.Index)('idx_ble_event_audit_recorded_at', ['recordedAt']),
     (0, typeorm_1.Index)('idx_ble_event_audit_errors', ['errorCode'], {
         where: '"error_code" IS NOT NULL',
