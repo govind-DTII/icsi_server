@@ -14,10 +14,11 @@ import { ConsentService } from './consent.service';
 import { ConsentController } from './consent.controller';
 import { ConsentRequestController } from './consent-request.controller';
 import { ConsentResponseController } from './consent-response.controller';
+import { UPLOADS_DIR } from '../uploads-path';
 
 @Module({
   imports: [
-    MulterModule.register({ dest: './uploads' }),
+    MulterModule.register({ dest: UPLOADS_DIR }),
     TypeOrmModule.forFeature([
       ConsentRequest,
       User,

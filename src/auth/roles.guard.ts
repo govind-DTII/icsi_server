@@ -19,6 +19,8 @@ export class RolesGuard implements CanActivate {
     );
     if (!requiredRoles) return true;
     const { user } = context.switchToHttp().getRequest();
+    // Missing/invalid JWT payload must deny — never TypeError on user.role.
+    if (!user?.role) return false;
     return requiredRoles.includes(user.role);
   }
 }

@@ -49,13 +49,13 @@ export class ConsentController {
   })
   hidResult(
     @Param('id') id: string,
-    @Body() body: { status: string; used_at?: number },
+    @Body() body: { status?: string; used_at?: number } | undefined,
     @Request() req,
   ) {
     return this.consentService.notifyHidInjectUsed(
       id,
-      body.status,
-      body.used_at,
+      body?.status ?? 'unknown',
+      body?.used_at,
       req.user.userId,
     );
   }
@@ -70,10 +70,10 @@ export class ConsentController {
   })
   async abort(
     @Param('id') id: string,
-    @Body() body: { reason?: string },
+    @Body() body: { reason?: string } | undefined,
     @Request() req,
   ) {
     await this.consentService.assertPartyById(id, req.user.userId);
-    return this.consentService.markAborted(id, body.reason ?? 'OWNER_ABORTED');
+    return this.consentService.markAborted(id, body?.reason ?? 'OWNER_ABORTED');
   }
 }

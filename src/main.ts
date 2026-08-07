@@ -2,31 +2,42 @@ import './polyfill';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { existsSync, mkdirSync } from 'fs';
-import { join } from 'path';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { LoggerService } from './logging/logger.service';
+import { UPLOADS_DIR } from './uploads-path';
 
 async function bootstrap() {
   // Ensure upload directory exists before Multer writes — missing folder
   // otherwise fails consent creates with opaque 500s on fresh cloud hosts.
-  const uploadsDir = join(process.cwd(), 'uploads');
-  if (!existsSync(uploadsDir)) {
-    mkdirSync(uploadsDir, { recursive: true });
+  try {
+    if (!existsSync(UPLOADS_DIR)) {
+      mkdirSync(UPLOADS_DIR, { recursive: true });
+    }
+  } catch (e) {
+    console.error('FATAL: cannot create uploads directory', UPLOADS_DIR, e);
+    process.exit(1);
+  }
+
+  // Fail fast if critical env is missing — better than cryptic JWT 500s later.
+  if (!process.env.JWT_SECRET?.trim()) {
+    console.error('FATAL: JWT_SECRET is required');
+    process.exit(1);
+  }
+  for (const key of ['DB_HOST', 'DB_USERNAME', 'DB_PASSWORD', 'DB_NAME'] as const) {
+    if (!process.env[key]?.trim()) {
+      console.error(`FATAL: ${key} is required`);
+      process.exit(1);
+    }
   }
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // Resolve the structured logger so startup + process-level errors land in the
-  // same production log file as request/exception logs.
   const appLog = app.get(LoggerService);
 
-  // Last-resort safety net: async errors thrown outside the Nest HTTP pipeline
-  // (stray rejections, timers, event handlers) would otherwise vanish or crash
-  // the process silently. Log them structurally so production can triage them.
-  // Do NOT process.exit — keep the API process up for cloud health checks.
+  // Log stray async failures; keep process up for orchestrated restart policies.
   process.on('unhandledRejection', (reason: unknown) => {
     const err = reason as Error;
     appLog.error(
@@ -39,18 +50,18 @@ async function bootstrap() {
       service: 'process',
       eventType: 'UNCAUGHT_EXCEPTION',
     });
+    // After an uncaught exception the process is undefined — exit so the
+    // platform restarts a clean worker (preferred over continuing corrupted).
+    setTimeout(() => process.exit(1), 250).unref?.();
   });
 
-  // Security — TLS 1.3 enforced at infrastructure level
   app.use(helmet());
-  app.enableCors({ origin: '*' }); // restrict in production
+  app.enableCors({ origin: '*' });
 
-  // Serve uploaded files as static
-  app.useStaticAssets(uploadsDir, {
+  app.useStaticAssets(UPLOADS_DIR, {
     prefix: '/uploads',
   });
 
-  // Validation pipe
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -59,10 +70,8 @@ async function bootstrap() {
     }),
   );
 
-  // Global API prefix
   app.setGlobalPrefix('api/v1');
 
-  // Swagger documentation
   const config = new DocumentBuilder()
     .setTitle('Ascent.EN API')
     .setDescription('DTII Consent Management Platform — Phase 1 Demo')
@@ -79,14 +88,12 @@ async function bootstrap() {
     service: 'bootstrap',
     eventType: 'SERVER_STARTED',
   });
-  // Human-friendly console hints for local dev (URLs only, no app data).
   console.log(`✅ Ascent.EN API running on port ${port}`);
   console.log(`📚 Swagger docs: http://localhost:${port}/api/docs`);
   console.log(`📱 From phone use: http://192.168.x.x:${port}/api/v1`);
 }
 
 bootstrap().catch((err: Error) => {
-  // Startup failures must be visible; exit so the process manager can restart.
   console.error('FATAL: Nest bootstrap failed', err?.stack ?? err);
   process.exit(1);
 });

@@ -26,51 +26,19 @@ Geo and SER fields are **optional** — old app builds that omit them still work
 
 ## 2. Database migration (run once on cloud Postgres)
 
-`NODE_ENV=production` keeps TypeORM `synchronize: false`. Apply this SQL
-manually (or via your migration runner) **before** restarting the new build.
+`NODE_ENV=production` keeps TypeORM `synchronize: false`. Apply the numbered
+migration file **before** restarting the new build:
 
-```sql
--- ── consent_requests: operator location evidence ───────────────────────────
-ALTER TABLE consent_requests
-  ADD COLUMN IF NOT EXISTS operator_latitude double precision,
-  ADD COLUMN IF NOT EXISTS operator_longitude double precision,
-  ADD COLUMN IF NOT EXISTS operator_location_accuracy double precision,
-  ADD COLUMN IF NOT EXISTS operator_location_captured_at timestamptz,
-  ADD COLUMN IF NOT EXISTS operator_street text,
-  ADD COLUMN IF NOT EXISTS operator_city varchar(120),
-  ADD COLUMN IF NOT EXISTS operator_state varchar(120),
-  ADD COLUMN IF NOT EXISTS operator_postal_code varchar(32);
+| File | Purpose |
+|------|---------|
+| [`migrations/007-ser-geo-evidence.sql`](./migrations/007-ser-geo-evidence.sql) | Operator geo/address on `consent_requests` + SER columns on `audit_logs` |
 
--- ── audit_logs: SER detail fields ──────────────────────────────────────────
-ALTER TABLE audit_logs
-  ADD COLUMN IF NOT EXISTS document_name varchar(255),
-  ADD COLUMN IF NOT EXISTS attachment_hash varchar(80),
-  ADD COLUMN IF NOT EXISTS file_url text,
-  ADD COLUMN IF NOT EXISTS latitude double precision,
-  ADD COLUMN IF NOT EXISTS longitude double precision,
-  ADD COLUMN IF NOT EXISTS location_accuracy double precision,
-  ADD COLUMN IF NOT EXISTS street text,
-  ADD COLUMN IF NOT EXISTS city varchar(120),
-  ADD COLUMN IF NOT EXISTS state varchar(120),
-  ADD COLUMN IF NOT EXISTS postal_code varchar(32);
-
--- Optional index for SER list queries
-CREATE INDEX IF NOT EXISTS idx_audit_logs_document_name
-  ON audit_logs (document_name)
-  WHERE document_name IS NOT NULL;
+```bash
+psql -d "ascent.en" -f migrations/007-ser-geo-evidence.sql
 ```
 
-Verify:
-
-```sql
-SELECT column_name, data_type
-FROM information_schema.columns
-WHERE table_name IN ('consent_requests', 'audit_logs')
-  AND column_name LIKE '%latitude%'
-     OR (table_name = 'audit_logs' AND column_name IN ('document_name','attachment_hash','file_url','street','city','state','postal_code'))
-     OR (table_name = 'consent_requests' AND column_name LIKE 'operator_%')
-ORDER BY table_name, column_name;
-```
+Idempotent (`IF NOT EXISTS`). Verify steps and optional rollback SQL are in
+the file header / footer comments.
 
 ---
 
@@ -111,7 +79,7 @@ mobile model maps the new entity columns (nullable-safe).
 ## 4. Deploy steps (cloud)
 
 1. **Backup** Postgres (`consent_requests`, `audit_logs` at minimum).
-2. Run the **SQL migration** above on the cloud DB.
+2. Run `migrations/007-ser-geo-evidence.sql` on the cloud DB.
 3. Deploy the new Nest build (this repo’s `src/` changes).
 4. Ensure env:
    - `NODE_ENV=production`
@@ -153,6 +121,7 @@ Firebase / `google-services.json` must not be changed for this deploy.
 
 ## 7. Files touched (server)
 
+- `migrations/007-ser-geo-evidence.sql` — **DB script for cloud** (apply this)
 - `src/entities/consent-request.entity.ts` — geo + address columns
 - `src/entities/audit-log.entity.ts` — SER columns
 - `src/consent/dto/create-consent-request.dto.ts` — optional geo/address DTO fields
@@ -168,28 +137,6 @@ Firebase / `google-services.json` must not be changed for this deploy.
 ## 8. Rollback
 
 1. Redeploy previous Nest build.
-2. New columns may stay (nullable; harmless). To drop (optional):
-
-```sql
-ALTER TABLE consent_requests
-  DROP COLUMN IF EXISTS operator_latitude,
-  DROP COLUMN IF EXISTS operator_longitude,
-  DROP COLUMN IF EXISTS operator_location_accuracy,
-  DROP COLUMN IF EXISTS operator_location_captured_at,
-  DROP COLUMN IF EXISTS operator_street,
-  DROP COLUMN IF EXISTS operator_city,
-  DROP COLUMN IF EXISTS operator_state,
-  DROP COLUMN IF EXISTS operator_postal_code;
-
-ALTER TABLE audit_logs
-  DROP COLUMN IF EXISTS document_name,
-  DROP COLUMN IF EXISTS attachment_hash,
-  DROP COLUMN IF EXISTS file_url,
-  DROP COLUMN IF EXISTS latitude,
-  DROP COLUMN IF EXISTS longitude,
-  DROP COLUMN IF EXISTS location_accuracy,
-  DROP COLUMN IF EXISTS street,
-  DROP COLUMN IF EXISTS city,
-  DROP COLUMN IF EXISTS state,
-  DROP COLUMN IF EXISTS postal_code;
-```
+2. New columns may stay (nullable; harmless). Optional DROP statements are in
+   the footer comments of
+   [`migrations/007-ser-geo-evidence.sql`](./migrations/007-ser-geo-evidence.sql).

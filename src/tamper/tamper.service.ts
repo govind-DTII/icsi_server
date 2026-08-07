@@ -56,13 +56,23 @@ export class TamperService {
     });
 
     // c. Append to the BLE event audit trail (best-effort, outside the txn)
-    await this.bleEventsService.recordEvent({
-      eventType: 'TAMPER_DETECTED',
-      direction: 'FW_TO_APP',
-      sessionId: dto.sessionId,
-      consentId: dto.consentId,
-      payloadSummary: { reportedBy: dto.reportedBy },
-    });
+    try {
+      await this.bleEventsService.recordEvent({
+        eventType: 'TAMPER_DETECTED',
+        direction: 'FW_TO_APP',
+        sessionId: dto.sessionId,
+        consentId: dto.consentId,
+        payloadSummary: { reportedBy: dto.reportedBy },
+      });
+    } catch (e) {
+      this.appLog.error(`tamper ble event record failed: ${e}`, {
+        service: 'tamper',
+        eventType: 'BLE_EVENT_WRITE_FAILED',
+        deviceId: dto.deviceId,
+        sessionId: dto.sessionId,
+        consentId: dto.consentId,
+      });
+    }
 
     this.appLog.log(`tamper detected (${dto.reportedBy})`, {
       service: 'tamper',

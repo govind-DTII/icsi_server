@@ -20,6 +20,7 @@ import { ConsentService } from './consent.service';
 import { CreateConsentRequestDto } from './dto/create-consent-request.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles, RolesGuard } from '../auth/roles.guard';
+import { UPLOADS_DIR } from '../uploads-path';
 
 // Spec Step 14 — operator submits a consent request, including the
 // attached document, via multipart/form-data. The path, field naming,
@@ -37,7 +38,7 @@ export class ConsentRequestController {
   @UseInterceptors(
     FileInterceptor('document', {
       storage: diskStorage({
-        destination: './uploads',
+        destination: UPLOADS_DIR,
         filename: (req, file, cb) => {
           const uniqueSuffix =
             Date.now() + '-' + Math.round(Math.random() * 1e9);

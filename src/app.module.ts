@@ -34,11 +34,19 @@ import { AllExceptionsFilter } from './logging/all-exceptions.filter';
         database: config.get('DB_NAME'),
         autoLoadEntities: true,
         // Never auto-alter schema in production — apply SQL from
-        // CLOUD_DEPLOY_SER.md instead. Local/dev may synchronize.
+        // migrations/007-ser-geo-evidence.sql instead. Local/dev may synchronize.
         synchronize:
           (config.get('NODE_ENV') ?? 'development') !== 'production' &&
           config.get('DB_SYNCHRONIZE') !== 'false',
         logging: config.get('NODE_ENV') === 'development',
+        retryAttempts: 10,
+        retryDelay: 3000,
+        // Soften transient disconnects so a brief DB blip doesn't strand the pool.
+        extra: {
+          max: 20,
+          idleTimeoutMillis: 30000,
+          connectionTimeoutMillis: 10000,
+        },
       }),
       inject: [ConfigService],
     }),
