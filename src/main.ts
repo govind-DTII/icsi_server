@@ -26,11 +26,19 @@ async function bootstrap() {
     console.error('FATAL: JWT_SECRET is required');
     process.exit(1);
   }
-  for (const key of ['DB_HOST', 'DB_USERNAME', 'DB_PASSWORD', 'DB_NAME'] as const) {
-    if (!process.env[key]?.trim()) {
-      console.error(`FATAL: ${key} is required`);
-      process.exit(1);
-    }
+  // Support Railway / standard Postgres env variables with fallbacks
+  const dbHost = process.env.DB_HOST?.trim() || process.env.PGHOST?.trim();
+  const dbUser = process.env.DB_USERNAME?.trim() || process.env.PGUSER?.trim();
+  const dbPass = process.env.DB_PASSWORD?.trim() || process.env.PGPASSWORD?.trim();
+  let dbName = process.env.DB_NAME?.trim() || process.env.PGDATABASE?.trim();
+
+  if (dbName?.includes('/var/lib/postgresql') || dbName?.startsWith('/')) {
+    dbName = process.env.PGDATABASE?.trim() || 'railway';
+  }
+
+  if (!dbHost || !dbUser || dbPass === undefined || !dbName) {
+    console.error('FATAL: Database environment variables (DB_HOST/PGHOST, DB_USERNAME/PGUSER, DB_PASSWORD/PGPASSWORD, DB_NAME/PGDATABASE) are required');
+    process.exit(1);
   }
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);

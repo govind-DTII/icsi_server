@@ -25,14 +25,19 @@ import { AllExceptionsFilter } from './logging/all-exceptions.filter';
     LoggerModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (config: ConfigService) => ({
-        type: 'postgres',
-        host: config.get('DB_HOST'),
-        port: parseInt(config.get('DB_PORT') ?? '5432'),
-        username: config.get('DB_USERNAME'),
-        password: config.get('DB_PASSWORD'),
-        database: config.get('DB_NAME'),
-        autoLoadEntities: true,
+      useFactory: (config: ConfigService) => {
+        let dbName = config.get('DB_NAME') || config.get('PGDATABASE') || 'railway';
+        if (dbName.includes('/var/lib/postgresql') || dbName.startsWith('/')) {
+          dbName = config.get('PGDATABASE') || 'railway';
+        }
+        return {
+          type: 'postgres',
+          host: config.get('DB_HOST') || config.get('PGHOST') || 'localhost',
+          port: parseInt(config.get('DB_PORT') || config.get('PGPORT') || '5432'),
+          username: config.get('DB_USERNAME') || config.get('PGUSER') || 'postgres',
+          password: config.get('DB_PASSWORD') || config.get('PGPASSWORD') || '',
+          database: dbName,
+          autoLoadEntities: true,
         // Never auto-alter schema in production — apply SQL from
         // migrations/007-ser-geo-evidence.sql instead. Local/dev may synchronize.
         synchronize:
