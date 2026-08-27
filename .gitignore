@@ -1,0 +1,45 @@
+# NestJS Specific Build Artifacts
+/dist
+/build
+
+# Dependencies
+/node_modules
+/jspm_packages
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment Variables and Secrets
+.env
+.env.accounts
+.env.production
+.env.development
+.env.local
+.env.test
+.env.sample
+
+# Testing and Coverage
+/coverage
+/.nyc_output
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS Metadata
+.DS_Store
+Thumbs.db
+
+# TypeScript Cache
+*.tsbuildinfo
