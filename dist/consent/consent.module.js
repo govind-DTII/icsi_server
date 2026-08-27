@@ -23,13 +23,14 @@ const consent_service_1 = require("./consent.service");
 const consent_controller_1 = require("./consent.controller");
 const consent_request_controller_1 = require("./consent-request.controller");
 const consent_response_controller_1 = require("./consent-response.controller");
+const uploads_path_1 = require("../uploads-path");
 let ConsentModule = class ConsentModule {
 };
 exports.ConsentModule = ConsentModule;
 exports.ConsentModule = ConsentModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            platform_express_1.MulterModule.register({ dest: './uploads' }),
+            platform_express_1.MulterModule.register({ dest: uploads_path_1.UPLOADS_DIR }),
             typeorm_1.TypeOrmModule.forFeature([
                 consent_request_entity_1.ConsentRequest,
                 user_entity_1.User,

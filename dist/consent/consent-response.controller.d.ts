@@ -3,10 +3,10 @@ export declare class ConsentResponseController {
     private readonly consentService;
     constructor(consentService: ConsentService);
     submit(body: {
-        consent_id: string;
-        decision: string;
+        consent_id?: string;
+        decision?: string;
         reason?: string;
-    }, req: any): Promise<{
+    } | undefined, req: any): Promise<{
         status: string;
         consent_id: string;
         decision: string;

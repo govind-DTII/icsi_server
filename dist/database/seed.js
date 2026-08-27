@@ -55,7 +55,7 @@ async function seed() {
         role: 'owner',
         deviceId: 'DTI001',
         passwordHash: await bcrypt.hash('owner123', 10),
-        pin: '12345678',
+        pin: '11111111',
     });
     const operator1 = userRepo.create({
         id: 'USR-002',
@@ -72,7 +72,7 @@ async function seed() {
         role: 'owner',
         deviceId: 'DTI002',
         passwordHash: await bcrypt.hash('owner123', 10),
-        pin: '12345678',
+        pin: '22222222',
     });
     const operator2 = userRepo.create({
         id: 'USR-004',
@@ -89,7 +89,7 @@ async function seed() {
         role: 'owner',
         deviceId: 'DTI003',
         passwordHash: await bcrypt.hash('owner123', 10),
-        pin: '12345678',
+        pin: '33333333',
     });
     const operator3 = userRepo.create({
         id: 'USR-006',

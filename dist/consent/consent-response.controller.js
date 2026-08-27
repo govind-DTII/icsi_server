@@ -23,7 +23,19 @@ let ConsentResponseController = class ConsentResponseController {
         this.consentService = consentService;
     }
     submit(body, req) {
-        return this.consentService.submitConsentResponse(req.user.userId, body);
+        const consentId = body?.consent_id?.trim();
+        const decision = body?.decision?.trim()?.toLowerCase();
+        if (!consentId || !decision) {
+            throw new common_1.BadRequestException('consent_id and decision are required');
+        }
+        if (decision !== 'approved' && decision !== 'rejected') {
+            throw new common_1.BadRequestException('decision must be approved or rejected');
+        }
+        return this.consentService.submitConsentResponse(req.user.userId, {
+            consent_id: consentId,
+            decision,
+            reason: body?.reason,
+        });
     }
     getResponse(consentId, req) {
         return this.consentService.getConsentResponse(consentId, req.user.userId);

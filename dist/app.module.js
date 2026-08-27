@@ -45,8 +45,16 @@ exports.AppModule = AppModule = __decorate([
                     password: config.get('DB_PASSWORD'),
                     database: config.get('DB_NAME'),
                     autoLoadEntities: true,
-                    synchronize: config.get('NODE_ENV') !== 'production',
+                    synchronize: (config.get('NODE_ENV') ?? 'development') !== 'production' &&
+                        config.get('DB_SYNCHRONIZE') !== 'false',
                     logging: config.get('NODE_ENV') === 'development',
+                    retryAttempts: 10,
+                    retryDelay: 3000,
+                    extra: {
+                        max: 20,
+                        idleTimeoutMillis: 30000,
+                        connectionTimeoutMillis: 10000,
+                    },
                 }),
                 inject: [config_1.ConfigService],
             }),

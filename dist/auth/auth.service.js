@@ -52,14 +52,23 @@ let AuthService = class AuthService {
         }
         if (!user)
             throw new common_1.UnauthorizedException('User not found');
-        await this.auditService.log({
-            action: `${user.name} login — JWT issued`,
-            type: 'login',
-            actorId: user.id,
-            actorRole: user.role,
-            actorName: user.name,
-            detail: `Auth API · ${isDemoMode ? 'demo one-tap' : 'email+password'}`,
-        });
+        try {
+            await this.auditService.log({
+                action: `${user.name} login — JWT issued`,
+                type: 'login',
+                actorId: user.id,
+                actorRole: user.role,
+                actorName: user.name,
+                detail: `Auth API · ${isDemoMode ? 'demo one-tap' : 'email+password'}`,
+            });
+        }
+        catch (e) {
+            this.appLog.error(`login audit failed: ${e}`, {
+                service: 'auth',
+                eventType: 'AUDIT_WRITE_FAILED',
+                actorId: user.id,
+            });
+        }
         this.appLog.log('user login', {
             requestId,
             service: 'auth',

@@ -22,6 +22,7 @@ const consent_service_1 = require("./consent.service");
 const create_consent_request_dto_1 = require("./dto/create-consent-request.dto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
+const uploads_path_1 = require("../uploads-path");
 let ConsentRequestController = class ConsentRequestController {
     constructor(consentService) {
         this.consentService = consentService;
@@ -33,7 +34,7 @@ let ConsentRequestController = class ConsentRequestController {
         const toNum = (v) => {
             if (v === undefined || v === null || v === '')
                 return null;
-            const n = typeof v === 'number' ? v : parseFloat(v);
+            const n = typeof v === 'number' ? v : parseFloat(String(v));
             return Number.isFinite(n) ? n : null;
         };
         return this.consentService.createConsentRequest(req.user.userId, {
@@ -57,7 +58,7 @@ __decorate([
     (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('document', {
         storage: (0, multer_1.diskStorage)({
-            destination: './uploads',
+            destination: uploads_path_1.UPLOADS_DIR,
             filename: (req, file, cb) => {
                 const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
                 cb(null, uniqueSuffix + (0, path_1.extname)(file.originalname));
@@ -71,7 +72,7 @@ __decorate([
                 cb(null, true);
             }
             else {
-                cb(new Error('File type not allowed'), false);
+                cb(null, false);
             }
         },
     })),

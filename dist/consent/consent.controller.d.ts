@@ -5,12 +5,12 @@ export declare class ConsentController {
     getAll(req: any): Promise<any[]>;
     getById(id: string, req: any): Promise<any>;
     hidResult(id: string, body: {
-        status: string;
+        status?: string;
         used_at?: number;
-    }, req: any): Promise<{
+    } | undefined, req: any): Promise<{
         status: string;
     }>;
     abort(id: string, body: {
         reason?: string;
-    }, req: any): Promise<void>;
+    } | undefined, req: any): Promise<void>;
 }

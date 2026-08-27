@@ -29,11 +29,11 @@ let ConsentController = class ConsentController {
         return this.consentService.findById(id, req.user.userId);
     }
     hidResult(id, body, req) {
-        return this.consentService.notifyHidInjectUsed(id, body.status, body.used_at, req.user.userId);
+        return this.consentService.notifyHidInjectUsed(id, body?.status ?? 'unknown', body?.used_at, req.user.userId);
     }
     async abort(id, body, req) {
         await this.consentService.assertPartyById(id, req.user.userId);
-        return this.consentService.markAborted(id, body.reason ?? 'OWNER_ABORTED');
+        return this.consentService.markAborted(id, body?.reason ?? 'OWNER_ABORTED');
     }
 };
 exports.ConsentController = ConsentController;
