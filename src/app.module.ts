@@ -46,10 +46,12 @@ import { AllExceptionsFilter } from './logging/all-exceptions.filter';
         logging: config.get('NODE_ENV') === 'development',
         retryAttempts: 10,
         retryDelay: 3000,
-        // Soften transient disconnects so a brief DB blip doesn't strand the pool.
-        extra: {
-          max: 20,
-          idleTimeoutMillis: 30000,
+          // Soften transient disconnects so a brief DB blip doesn't strand the pool.
+          extra: {
+            max: 20,
+            idleTimeoutMillis: 30000,
+            connectionTimeoutMillis: 10000,
+          },
         };
       },
       inject: [ConfigService],
