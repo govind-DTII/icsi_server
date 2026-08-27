@@ -1,5 +1,5 @@
 [phases.install]
-cmds = ["npm ci --include=dev"]
+cmds = ["npm install --include=dev --legacy-peer-deps"]
 
 [phases.build]
 cmds = ["npx nest build"]
