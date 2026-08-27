@@ -41,8 +41,9 @@ import { AllExceptionsFilter } from './logging/all-exceptions.filter';
         // Never auto-alter schema in production — apply SQL from
         // migrations/007-ser-geo-evidence.sql instead. Local/dev may synchronize.
         synchronize:
-          (config.get('NODE_ENV') ?? 'development') !== 'production' &&
-          config.get('DB_SYNCHRONIZE') !== 'false',
+          config.get('DB_SYNCHRONIZE') === 'true' ||
+          ((config.get('NODE_ENV') ?? 'development') !== 'production' &&
+            config.get('DB_SYNCHRONIZE') !== 'false'),
         logging: config.get('NODE_ENV') === 'development',
         retryAttempts: 10,
         retryDelay: 3000,
