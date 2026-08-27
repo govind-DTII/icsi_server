@@ -50,9 +50,8 @@ import { AllExceptionsFilter } from './logging/all-exceptions.filter';
         extra: {
           max: 20,
           idleTimeoutMillis: 30000,
-          connectionTimeoutMillis: 10000,
-        },
-      }),
+        };
+      },
       inject: [ConfigService],
     }),
     AuthModule,
