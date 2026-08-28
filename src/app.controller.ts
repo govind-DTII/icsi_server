@@ -1,12 +1,14 @@
-import { Controller, Get, ServiceUnavailableException } from '@nestjs/common';
+import { Controller, Get, Post, ServiceUnavailableException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { AppService } from './app.service';
+import { AutoSeedService } from './database/auto-seed.service';
 
 @Controller()
 export class AppController {
   constructor(
     private readonly appService: AppService,
     private readonly dataSource: DataSource,
+    private readonly autoSeedService: AutoSeedService,
   ) {}
 
   @Get()
@@ -32,10 +34,18 @@ export class AppController {
       timestamp: new Date().toISOString(),
     };
 
-    // Process is up, but cloud load balancers should treat DB-down as unhealthy.
     if (db === 'down') {
       throw new ServiceUnavailableException(body);
     }
     return body;
+  }
+
+  @Post('seed')
+  async seed() {
+    await this.autoSeedService.onApplicationBootstrap();
+    return {
+      message: 'Database schema synchronized and demo users seeded successfully!',
+      timestamp: new Date().toISOString(),
+    };
   }
 }

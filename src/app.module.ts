@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AutoSeedService } from './database/auto-seed.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { DevicesModule } from './devices/devices.module';
@@ -38,16 +39,13 @@ import { AllExceptionsFilter } from './logging/all-exceptions.filter';
           password: config.get('DB_PASSWORD') || config.get('PGPASSWORD') || '',
           database: dbName,
           autoLoadEntities: true,
-        // Never auto-alter schema in production — apply SQL from
-        // migrations/007-ser-geo-evidence.sql instead. Local/dev may synchronize.
-        synchronize:
-          config.get('DB_SYNCHRONIZE') === 'true' ||
-          ((config.get('NODE_ENV') ?? 'development') !== 'production' &&
-            config.get('DB_SYNCHRONIZE') !== 'false'),
-        logging: config.get('NODE_ENV') === 'development',
-        retryAttempts: 10,
-        retryDelay: 3000,
-          // Soften transient disconnects so a brief DB blip doesn't strand the pool.
+          synchronize:
+            config.get('DB_SYNCHRONIZE') === 'true' ||
+            ((config.get('NODE_ENV') ?? 'development') !== 'production' &&
+              config.get('DB_SYNCHRONIZE') !== 'false'),
+          logging: config.get('NODE_ENV') === 'development',
+          retryAttempts: 10,
+          retryDelay: 3000,
           extra: {
             max: 20,
             idleTimeoutMillis: 30000,
@@ -72,6 +70,7 @@ import { AllExceptionsFilter } from './logging/all-exceptions.filter';
   controllers: [AppController],
   providers: [
     AppService,
+    AutoSeedService,
     { provide: APP_INTERCEPTOR, useClass: RequestLoggingInterceptor },
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
   ],
