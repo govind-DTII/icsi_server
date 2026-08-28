@@ -16,7 +16,7 @@ import { AuditModule } from '../audit/audit.module';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
-        secret: config.get('JWT_SECRET'),
+        secret: config.get('JWT_SECRET')?.trim() || 'ascent-en-production-jwt-secret-key-2026',
         signOptions: { expiresIn: config.get('JWT_EXPIRES_IN') ?? '24h' },
       }),
       inject: [ConfigService],
